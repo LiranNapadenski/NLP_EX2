@@ -26,10 +26,11 @@ def forward(data, label, params, dimensions):
     ofs += H * Dy
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
+    
     # Compute the probability
-    ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
-    ### END YOUR CODE
+    h = sigmoid(data @ W1 + b1)
+    y_hat = softmax(h @ W2 + b2)
+    return y_hat.T[label]
 
 
 def forward_backward_prop(data, labels, params, dimensions):
@@ -58,13 +59,22 @@ def forward_backward_prop(data, labels, params, dimensions):
     W2 = np.reshape(params[ofs:ofs + H * Dy], (H, Dy))
     ofs += H * Dy
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
-
+    
+    
+    
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    x = data
+    y = labels
+    h = sigmoid(x @ W1 + b1)
+    y_hat = softmax(h @ W2 + b2)
+    cost = - np.log(y_hat[np.where(y == 1)]).sum()
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    gradb2 = (y_hat - y).sum(axis=0).reshape(1, -1)
+    gradW2 = ((y_hat - y).T @ h).T
+    gradb1 = (((y_hat - y) @ W2.T) * sigmoid_grad(h)).sum(axis=0).reshape(1, -1)
+    gradW1 = x.T @ (((y_hat - y) @ W2.T) * sigmoid_grad(h))
     ### END YOUR CODE
 
     # Stack gradients (do not modify)
