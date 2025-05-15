@@ -76,19 +76,23 @@ def int_to_one_hot(number, dim):
 
 
 def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions, params):
-
+    
     data = np.zeros([BATCH_SIZE, input_dim])
     labels = np.zeros([BATCH_SIZE, output_dim])
 
     # Construct the data batch and run you backpropogation implementation
     ### YOUR CODE HERE
-    raise NotImplementedError
+    rand_word_idx = np.random.randint(low=0, high=len(in_word_index), size=BATCH_SIZE)
+    rand_input_words = np.array(in_word_index)[rand_word_idx]
+    data += np.array(num_to_word_embedding)[rand_input_words]
+    vfunc = np.vectorize(int_to_one_hot, excluded=['dim'], signature='() -> (n)')
+    labels += vfunc(number=np.array(out_word_index)[rand_word_idx], dim=output_dim)
+    cost, grad = forward_backward_prop(data, labels, params, dimensions)
     ### END YOUR CODE
 
     cost /= BATCH_SIZE
     grad /= BATCH_SIZE
     return cost, grad
-
 
 def eval_neural_lm(eval_data_path):
     """
@@ -98,14 +102,16 @@ def eval_neural_lm(eval_data_path):
     in_word_index, out_word_index = convert_to_lm_dataset(S_dev)
     assert len(in_word_index) == len(out_word_index)
     num_of_examples = len(in_word_index)
-
     perplexity = 0
     ### YOUR CODE HERE
-    raise NotImplementedError
+    data = np.array(num_to_word_embedding)[in_word_index]
+    labels = out_word_index
+    for idx in range(data.shape[0]):
+        perplexity += np.log2(forward(data[idx], labels[idx], params, dimensions))
+    perplexity = 2 ** (- perplexity / num_of_examples)
     ### END YOUR CODE
 
     return perplexity
-
 
 if __name__ == "__main__":
     # Load the vocabulary
