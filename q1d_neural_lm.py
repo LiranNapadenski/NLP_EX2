@@ -161,6 +161,6 @@ if __name__ == "__main__":
     else:
         print("test perplexity will be evaluated only at test time!")
     
-    #evals the texts 
+    #evals the perplexity of the texts 
     print(f"perplexity on shakespare: {eval_neural_lm('shakespeare_for_perplexity.txt')}")
     print(f"perplexity on wikipedia: {eval_neural_lm('wikipedia_for_perplexity.txt')}")
