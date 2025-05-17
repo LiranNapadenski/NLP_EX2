@@ -69,12 +69,6 @@ def shuffle_training_data(in_word_index, out_word_index):
     return list(zip(*combined))
 
 
-def int_to_one_hot(number, dim):
-    res = np.zeros(dim)
-    res[number] = 1.0
-    return res
-
-
 def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions, params):
     
     data = np.zeros([BATCH_SIZE, input_dim])
@@ -84,9 +78,12 @@ def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions,
     ### YOUR CODE HERE
     rand_word_idx = np.random.randint(low=0, high=len(in_word_index), size=BATCH_SIZE)
     rand_input_words = np.array(in_word_index)[rand_word_idx]
-    data += np.array(num_to_word_embedding)[rand_input_words]
-    vfunc = np.vectorize(int_to_one_hot, excluded=['dim'], signature='() -> (n)')
-    labels += vfunc(number=np.array(out_word_index)[rand_word_idx], dim=output_dim)
+    data = np.array(num_to_word_embedding)[rand_input_words]  # shape (BATCH_SIZE, input_dim)
+
+    # Create one-hot labels efficiently:
+    labels = np.zeros((BATCH_SIZE, output_dim))
+    rand_output_words = np.array(out_word_index)[rand_word_idx]
+    labels[np.arange(BATCH_SIZE), rand_output_words] = 1.0
     cost, grad = forward_backward_prop(data, labels, params, dimensions)
     ### END YOUR CODE
 
@@ -163,3 +160,7 @@ if __name__ == "__main__":
         print(f"test perplexity : {perplexity}")
     else:
         print("test perplexity will be evaluated only at test time!")
+    
+    #evals the texts 
+    print(f"perplexity on shakespare: {eval_neural_lm('shakespeare_for_perplexity.txt')}")
+    print(f"perplexity on wikipedia: {eval_neural_lm('wikipedia_for_perplexity.txt')}")

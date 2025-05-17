@@ -71,10 +71,11 @@ def forward_backward_prop(data, labels, params, dimensions):
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    gradb2 = (y_hat - y).sum(axis=0).reshape(1, -1)
-    gradW2 = ((y_hat - y).T @ h).T
-    gradb1 = (((y_hat - y) @ W2.T) * sigmoid_grad(h)).sum(axis=0).reshape(1, -1)
-    gradW1 = x.T @ (((y_hat - y) @ W2.T) * sigmoid_grad(h))
+    gradb2 = (y_hat - y).sum(axis=0, keepdims=True)
+    gradW2 = h.T @ (y_hat - y)
+    delta1 = ((y_hat - y) @ W2.T) * sigmoid_grad(h)
+    gradb1 = delta1.sum(axis=0, keepdims=True) 
+    gradW1 = x.T @ delta1 
     ### END YOUR CODE
 
     # Stack gradients (do not modify)
